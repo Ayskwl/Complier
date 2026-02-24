@@ -1,0 +1,10 @@
+C:\Users\admin\Desktop\учеба\RGRCompilator\bin\Debug\RGRCompilator.exe.config
+C:\Users\admin\Desktop\учеба\RGRCompilator\bin\Debug\RGRCompilator.exe
+C:\Users\admin\Desktop\учеба\RGRCompilator\bin\Debug\RGRCompilator.pdb
+C:\Users\admin\Desktop\учеба\RGRCompilator\obj\Debug\RGRCompilator.csproj.AssemblyReference.cache
+C:\Users\admin\Desktop\учеба\RGRCompilator\obj\Debug\RGRCompilator.Properties.Resources.resources
+C:\Users\admin\Desktop\учеба\RGRCompilator\obj\Debug\RGRCompilator.csproj.GenerateResource.cache
+C:\Users\admin\Desktop\учеба\RGRCompilator\obj\Debug\RGRCompilator.csproj.CoreCompileInputs.cache
+C:\Users\admin\Desktop\учеба\RGRCompilator\obj\Debug\RGRCompilator.exe
+C:\Users\admin\Desktop\учеба\RGRCompilator\obj\Debug\RGRCompilator.pdb
+C:\Users\admin\Desktop\учеба\RGRCompilator\obj\Debug\RGRCompilator.Complier.resources
