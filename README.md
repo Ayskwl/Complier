@@ -84,7 +84,7 @@ RGRCompilator.exe
 ---
 
 ## 6.1 Общий вид интерфейса
-![Интерфейс](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\interface.png)
+![Интерфейс](screenshots/interface.png)
 Программа состоит из:
 
 1. Область редактирования (верхняя часть окна)
@@ -94,7 +94,7 @@ RGRCompilator.exe
 
 ## 6.2 Меню "Файл"
 
-![Меню Файл](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\FileMenu.png)
+![Меню Файл](screenshots/FileMenu.png)
 
 ### Создать
 Меню: **Файл → Создать**  
@@ -102,7 +102,7 @@ RGRCompilator.exe
 
 Создает новый файл.  
 Если текст был изменен — появляется окно сохранения.
-![Окно сохранения](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\SaveChange.png)
+![Окно сохранения](screenshots/SaveChange.png)
 
 ---
 
@@ -112,7 +112,7 @@ RGRCompilator.exe
 
 Открывает текстовый файл.
 
-![Открытие файла](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\Open.png)
+![Открытие файла](screenshots/Open.png)
 
 ---
 
@@ -129,7 +129,7 @@ RGRCompilator.exe
 
 Позволяет сохранить документ под новым именем.
 
-![Сохранить файл как](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\SaveAs.png)
+![Сохранить файл как](screenshots/SaveAs.png)
 
 ---
 ### Выход
@@ -137,19 +137,19 @@ RGRCompilator.exe
 
 Закрывает программу с проверкой сохранения изменений.
 
-![Выход](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\Exit.png)
+![Выход](screenshots/Exit.png)
 
 ---
 
 ## 6.3 Меню "Правка"
 
-![Меню Правка](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\menu_edit.png)
+![Меню Правка](screenshots/menu_edit.png)
 
 ### Отменить
 Меню: **Правка → Отменить**  
 Кнопка: стрелка назад  
 
-![Стрелка назад](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\back.png)
+![Стрелка назад](screenshots/back.png)
 
 ---
 
@@ -157,7 +157,7 @@ RGRCompilator.exe
 Меню: **Правка → Повторить**  
 Кнопка: стрелка вперед  
 
-![Стрелка вперед](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\forward.png)
+![Стрелка вперед](screenshots/forward.png)
 
 ---
 
@@ -167,14 +167,14 @@ RGRCompilator.exe
 Работа с буфером обмена.
 
 
-![Работа с буфером обмена.](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\paste.png)
+![Работа с буфером обмена.](screenshots/paste.png)
 
 ---
 
 ### Удалить
 Удаляет выделенный текст.
 
-![Вырезать.](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\cut.png)
+![Вырезать.](screenshots/cut.png)
 
 ---
 
@@ -185,7 +185,7 @@ RGRCompilator.exe
 
 ## 6.4 Запуск анализа
 
-![Кнопка Пуск](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\run_button.png)
+![Кнопка Пуск](screenshots/run_button.png)
 
 Для запуска анализа:
 
@@ -193,13 +193,13 @@ RGRCompilator.exe
 или
 - Выбрать соответствующий пункт меню
 
-![Пуск](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\run.png)
+![Пуск](screenshots/run.png)
 
 ---
 
 ## 6.5 Отображение ошибок
 
-![Ошибка](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\notsuccessful.png)
+![Ошибка](screenshots/notsuccessful.png)
 
 Программа обнаруживает:
 
@@ -213,7 +213,7 @@ RGRCompilator.exe
 
 ## 6.6 Переход к месту ошибки
 
-![Переход к ошибке](C:\Users\admin\Desktop\учеба\RGRCompilator\screenshots\error_navigation.png)
+![Переход к ошибке](screenshots/error_navigation.png)
 
 Для перехода к ошибке:
 
