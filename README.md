@@ -143,7 +143,7 @@ RGRCompilator.exe
 
 ## 6.3 Меню "Правка"
 
-![Меню Правка](screenshots/menu_edit.png)
+![Меню Правка](screenshots/menuEdit.png)
 
 ### Отменить
 Меню: **Правка → Отменить**  
@@ -236,3 +236,4 @@ RGRCompilator.exe
 
 
 Версия 1.0
+
