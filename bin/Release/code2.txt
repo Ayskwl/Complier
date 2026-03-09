@@ -1,0 +1,7 @@
+﻿struct Student 
+{ int id;
+   float average;
+   double salary;
+   char grade;
+   long year;
+};
