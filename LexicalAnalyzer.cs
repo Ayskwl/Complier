@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -61,8 +61,6 @@ namespace RGRCompilator
                 { '}', (11, "разделитель") },
                 { '[', (11, "разделитель") },
                 { ']', (11, "разделитель") },
-                { '(', (11, "разделитель") },
-                { ')', (11, "разделитель") },
                 { ';', (16, "конец оператора") },
                 { ',', (11, "разделитель") },
 
@@ -125,20 +123,14 @@ namespace RGRCompilator
                         }
                     }
 
-                    int endLine = startLine;
-                    int endCol;
-
                     string wsText = sb.ToString();
                     string displayValue = GetWhiteSpaceDisplay(wsText);
 
+                    int endCol;
                     if (wsText.Contains("\r") || wsText.Contains("\n"))
-                    {
                         endCol = 1;
-                    }
                     else
-                    {
                         endCol = startCol + wsText.Length - 1;
-                    }
 
                     result.Add(new Lexeme
                     {
@@ -243,25 +235,53 @@ namespace RGRCompilator
                     continue;
                 }
 
-                result.Add(new Lexeme
                 {
-                    Code = 99,
-                    TypeName = "ошибка",
-                    Value = ch.ToString(),
-                    Line = line,
-                    StartColumn = col,
-                    EndColumn = col,
-                    StartIndex = i,
-                    Length = 1,
-                    IsError = true,
-                    ErrorMessage = $"Недопустимый символ: '{ch}'"
-                });
+                    int startIndex = i;
+                    int startLine = line;
+                    int startCol = col;
 
-                i++;
-                col++;
+                    StringBuilder sb = new StringBuilder();
+
+                    while (i < text.Length && IsInvalidChar(text[i]))
+                    {
+                        sb.Append(text[i]);
+                        i++;
+                        col++;
+                    }
+
+                    string errorFragment = sb.ToString();
+
+                    result.Add(new Lexeme
+                    {
+                        Code = 99,
+                        TypeName = "ошибка",
+                        Value = errorFragment,
+                        Line = startLine,
+                        StartColumn = startCol,
+                        EndColumn = col - 1,
+                        StartIndex = startIndex,
+                        Length = i - startIndex,
+                        IsError = true,
+                        ErrorMessage = $"Недопустимый фрагмент: '{errorFragment}'"
+                    });
+                }
             }
 
             return result;
+        }
+
+        private bool IsInvalidChar(char ch)
+        {
+            if (char.IsWhiteSpace(ch))
+                return false;
+
+            if (char.IsLetterOrDigit(ch) || ch == '_')
+                return false;
+
+            if (_singleCharTokens.ContainsKey(ch))
+                return false;
+
+            return true;
         }
 
         private string GetWhiteSpaceDisplay(string value)
