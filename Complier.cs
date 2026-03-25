@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -150,14 +150,11 @@ namespace RGRCompilator
 
         private void EnsureResultsColumns()
         {
-            if (dgvResults.Columns.Count > 0) return;
-
             dgvResults.Columns.Clear();
 
-            dgvResults.Columns.Add("colCode", "Условный код");
-            dgvResults.Columns.Add("colType", "Тип лексемы");
-            dgvResults.Columns.Add("colLexeme", "Лексема");
+            dgvResults.Columns.Add("colFragment", "Неверный фрагмент");
             dgvResults.Columns.Add("colLocation", "Местоположение");
+            dgvResults.Columns.Add("colDescription", "Описание");
 
             int cStart = dgvResults.Columns.Add("colStart", "StartIndex");
             dgvResults.Columns[cStart].Visible = false;
@@ -165,44 +162,66 @@ namespace RGRCompilator
             int cLen = dgvResults.Columns.Add("colLen", "Length");
             dgvResults.Columns[cLen].Visible = false;
 
-            int cErr = dgvResults.Columns.Add("colIsError", "IsError");
-            dgvResults.Columns[cErr].Visible = false;
-
             dgvResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
-        private void FillResultsTable(List<Lexeme> lexemes)
+        private void FillLexicalErrorsTable(List<Lexeme> lexemes)
         {
             dgvResults.Rows.Clear();
             EnsureResultsColumns();
 
-            foreach (var lex in lexemes)
-            {
-                string typeText = lex.IsError
-                    ? $"ошибка: {lex.ErrorMessage}"
-                    : lex.TypeName;
+            var lexicalErrors = lexemes.Where(x => x.IsError).ToList();
 
+            foreach (var lex in lexicalErrors)
+            {
                 dgvResults.Rows.Add(
-                    lex.Code,
-                    typeText,
                     lex.Value,
-                    lex.Location,
+                    $"строка {lex.Line}, позиция {lex.StartColumn}",
+                    lex.ErrorMessage,
                     lex.StartIndex,
-                    lex.Length,
-                    lex.IsError
+                    lex.Length
                 );
             }
 
-            if (lexemes.Count == 0)
+            dgvResults.Rows.Add(
+                "Общее количество ошибок:",
+                "",
+                lexicalErrors.Count.ToString(),
+                -1,
+                0
+            );
+        }
+
+        private void FillSyntaxErrorsTable(ParserResult result)
+        {
+            dgvResults.Rows.Clear();
+            EnsureResultsColumns();
+
+            foreach (var err in result.Errors)
             {
-                dgvResults.Rows.Add("", "Инфо", "Пустой текст", "", -1, 0, false);
+                dgvResults.Rows.Add(
+                    err.InvalidFragment,
+                    err.Location,
+                    err.Description,
+                    err.StartIndex,
+                    err.Length
+                );
             }
+
+            dgvResults.Rows.Add(
+                "Общее количество ошибок:",
+                "",
+                result.Errors.Count.ToString(),
+                -1,
+                0
+            );
         }
 
         private void AddInfo(string message)
         {
+            dgvResults.Rows.Clear();
             EnsureResultsColumns();
-            dgvResults.Rows.Add("Инфо", message, "", "", -1, 0);
+            dgvResults.Rows.Add("", "", message, -1, 0);
         }
 
         private void Complier_FormClosing(object sender, FormClosingEventArgs e)
@@ -221,7 +240,25 @@ namespace RGRCompilator
             var analyzer = new LexicalAnalyzer();
             List<Lexeme> lexemes = analyzer.Analyze(code);
 
-            FillResultsTable(lexemes);
+            var lexicalErrors = lexemes.Where(x => x.IsError).ToList();
+
+            if (lexicalErrors.Count > 0)
+            {
+                FillLexicalErrorsTable(lexemes);
+                return;
+            }
+
+            var parser = new SyntaxParser(lexemes);
+            ParserResult result = parser.Parse();
+
+            if (result.Success)
+            {
+                AddInfo("Синтаксических ошибок не обнаружено.");
+            }
+            else
+            {
+                FillSyntaxErrorsTable(result);
+            }
         }
 
         private void toolStripButtonAdd_Click(object sender, EventArgs e) => NewFile();
