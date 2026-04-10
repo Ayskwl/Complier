@@ -26,23 +26,16 @@ namespace RGRCompilator
         public List<ParserError> Errors { get; set; } = new List<ParserError>();
     }
 
-    public enum ParserState
-    {
-        ExpectStruct,
-        ExpectStructName,
-        ExpectOpenBrace,
-        ExpectFieldTypeOrCloseBrace,
-        ExpectFieldName,
-        ExpectFieldSemicolon,
-        ExpectFinalSemicolon,
-        Done
-    }
-
     public class SyntaxParser
     {
         private readonly List<Lexeme> _tokens;
         private readonly List<ParserError> _errors = new List<ParserError>();
         private int _position;
+
+        private static readonly string[] ValidTypes =
+        {
+            "int", "char", "float", "double", "short", "long"
+        };
 
         public SyntaxParser(List<Lexeme> sourceTokens)
         {
@@ -54,293 +47,184 @@ namespace RGRCompilator
         {
             if (_tokens.Count == 0)
             {
-                _errors.Add(new ParserError
-                {
-                    InvalidFragment = "",
-                    Line = 1,
-                    Position = 1,
-                    Description = "Введён пустой текст",
-                    StartIndex = 0,
-                    Length = 0
-                });
-
-                return new ParserResult
-                {
-                    Success = false,
-                    Errors = _errors
-                };
+                AddEndError("Введён пустой текст");
+                return BuildResult();
             }
 
-            ParserState state = ParserState.ExpectStruct;
-
-            while (state != ParserState.Done)
-            {
-                switch (state)
-                {
-                    case ParserState.ExpectStruct:
-                        if (MatchValue("struct"))
-                        {
-                            state = ParserState.ExpectStructName;
-                        }
-                        else
-                        {
-                            AddError(Current, "Ожидалось ключевое слово struct");
-
-                            if (!RecoverTo("struct", "{", "}", ";"))
-                            {
-                                state = ParserState.Done;
-                            }
-                            else if (Current != null && Current.Value == "struct")
-                            {
-                                Advance();
-                                state = ParserState.ExpectStructName;
-                            }
-                            else
-                            {
-                                SafeAdvanceOrFinish(ref state);
-                            }
-                        }
-                        break;
-
-                    case ParserState.ExpectStructName:
-                        if (MatchIdentifier())
-                        {
-                            state = ParserState.ExpectOpenBrace;
-                        }
-                        else
-                        {
-                            AddError(Current, "Ожидалось имя структуры");
-
-                            if (!RecoverTo("{", "}", ";"))
-                            {
-                                state = ParserState.Done;
-                            }
-                            else
-                            {
-                                state = ParserState.ExpectOpenBrace;
-                            }
-                        }
-                        break;
-
-                    case ParserState.ExpectOpenBrace:
-                        if (MatchValue("{"))
-                        {
-                            state = ParserState.ExpectFieldTypeOrCloseBrace;
-                        }
-                        else
-                        {
-                            AddError(Current, "Ожидалась открывающая фигурная скобка '{'");
-
-                            if (!RecoverTo("{", "}", ";", "int", "char", "float", "double", "short", "long"))
-                            {
-                                state = ParserState.Done;
-                            }
-                            else if (Current != null && Current.Value == "{")
-                            {
-                                Advance();
-                                state = ParserState.ExpectFieldTypeOrCloseBrace;
-                            }
-                            else
-                            {
-                                state = ParserState.ExpectFieldTypeOrCloseBrace;
-                            }
-                        }
-                        break;
-
-                    case ParserState.ExpectFieldTypeOrCloseBrace:
-                        if (IsAtEnd())
-                        {
-                            AddError(null, "Ожидалась закрывающая фигурная скобка '}'");
-                            state = ParserState.Done;
-                        }
-                        else if (Current.Value == "}")
-                        {
-                            Advance();
-                            state = ParserState.ExpectFinalSemicolon;
-                        }
-                        else if (IsType(Current))
-                        {
-                            Advance();
-                            state = ParserState.ExpectFieldName;
-                        }
-                        else
-                        {
-                            AddError(Current, "Ожидался тип поля или закрывающая фигурная скобка '}'");
-                            RecoverField();
-
-                            if (IsAtEnd())
-                            {
-                                state = ParserState.Done;
-                            }
-                            else if (Current.Value == "}")
-                            {
-                                Advance();
-                                state = ParserState.ExpectFinalSemicolon;
-                            }
-                            else
-                            {
-                                state = ParserState.ExpectFieldTypeOrCloseBrace;
-                            }
-                        }
-                        break;
-
-                    case ParserState.ExpectFieldName:
-                        if (MatchIdentifier())
-                        {
-                            state = ParserState.ExpectFieldSemicolon;
-                        }
-                        else
-                        {
-                            AddError(Current, "Ожидалось имя поля");
-                            RecoverField();
-
-                            if (IsAtEnd())
-                            {
-                                state = ParserState.Done;
-                            }
-                            else if (Current.Value == "}")
-                            {
-                                Advance();
-                                state = ParserState.ExpectFinalSemicolon;
-                            }
-                            else
-                            {
-                                state = ParserState.ExpectFieldTypeOrCloseBrace;
-                            }
-                        }
-                        break;
-
-                    case ParserState.ExpectFieldSemicolon:
-                        if (MatchValue(";"))
-                        {
-                            state = ParserState.ExpectFieldTypeOrCloseBrace;
-                        }
-                        else
-                        {
-                            AddError(Current, "Ожидалась точка с запятой ';' после описания поля");
-                            RecoverField();
-
-                            if (IsAtEnd())
-                            {
-                                state = ParserState.Done;
-                            }
-                            else if (Current.Value == "}")
-                            {
-                                Advance();
-                                state = ParserState.ExpectFinalSemicolon;
-                            }
-                            else
-                            {
-                                state = ParserState.ExpectFieldTypeOrCloseBrace;
-                            }
-                        }
-                        break;
-
-                    case ParserState.ExpectFinalSemicolon:
-                        if (MatchValue(";"))
-                        {
-                            state = ParserState.Done;
-                        }
-                        else
-                        {
-                            AddError(Current, "Ожидалась точка с запятой ';' после определения структуры");
-                            state = ParserState.Done;
-                        }
-                        break;
-                }
-            }
+            ParseStruct();
 
             if (!IsAtEnd())
             {
                 AddTrailingFragmentError();
             }
 
-            if (_errors.Count == 0)
-            {
-                _errors.Add(new ParserError
-                {
-                    InvalidFragment = "",
-                    Line = 0,
-                    Position = 0,
-                    Description = "Синтаксических ошибок не обнаружено",
-                    StartIndex = 0,
-                    Length = 0
-                });
+            return BuildResult();
+        }
 
-                return new ParserResult
-                {
-                    Success = true,
-                    Errors = _errors
-                };
-            }
-
+        private ParserResult BuildResult()
+        {
             return new ParserResult
             {
-                Success = false,
+                Success = _errors.Count == 0,
                 Errors = _errors
             };
         }
-
-        private void SafeAdvanceOrFinish(ref ParserState state)
+        private void ParseStruct()
         {
-            if (!IsAtEnd())
+            bool hasStructKeyword = false;
+
+            if (MatchValue("struct"))
+            {
+                hasStructKeyword = true;
+            }
+            else
+            {
+                AddError(Current, "Ожидалось ключевое слово struct");
+            }
+
+            if (Current != null && IsIdentifier(Current))
+            {
                 Advance();
+            }
+            else
+            {
+                if (hasStructKeyword)
+                {
+                    AddError(Current, "Ожидалось имя структуры");
+                    RecoverTo("{", "}", ";", "int", "char", "float", "double", "short", "long");
+                }
+            }
+            
+            if (MatchValue("{"))
+            {
+
+            }
+            else
+            {
+                AddError(Current, "Ожидалась открывающая фигурная скобка '{'");
+
+                if (!IsFieldStart(Current))
+                {
+                    RecoverTo("{", "}", ";", "int", "char", "float", "double", "short", "long");
+
+                    if (Current != null && Current.Value == "{")
+                    {
+                        Advance();
+                    }
+                }
+            }
+
+            ParseFields();
 
             if (IsAtEnd())
-                state = ParserState.Done;
+            {
+                AddEndError("Ожидалась закрывающая фигурная скобка '}'");
+                return;
+            }
+
+            if (!MatchValue("}"))
+            {
+                AddError(Current, "Ожидалась закрывающая фигурная скобка '}'");
+                RecoverTo("}", ";");
+
+                if (Current != null && Current.Value == "}")
+                {
+                    Advance();
+                }
+            }
+
+            if (IsAtEnd())
+            {
+                AddEndError("Ожидалась точка с запятой ';' после определения структуры");
+                return;
+            }
+
+            if (!MatchValue(";"))
+            {
+                AddError(Current, "Ожидалась точка с запятой ';' после определения структуры");
+                RecoverTo(";");
+
+                if (Current != null && Current.Value == ";")
+                {
+                    Advance();
+                }
+            }
+        }
+
+        private void ParseFields()
+        {
+            while (!IsAtEnd() && Current.Value != "}")
+            {
+                ParseField();
+            }
+        }
+
+        private void ParseField()
+        {
+            if (Current == null)
+                return;
+
+            if (!IsType(Current))
+            {
+                AddError(Current, "Ожидалось описание поля: тип данных");
+                RecoverField();
+                return;
+            }
+
+            Advance();
+
+            if (!MatchIdentifier())
+            {
+                AddError(Current, "Ожидалось имя поля");
+
+                if (Current != null && (Current.Value == ";" || Current.Value == "}"))
+                {
+                    if (Current.Value == ";")
+                        Advance();
+                    return;
+                }
+
+                RecoverField();
+                return;
+            }
+
+            if (!MatchValue(";"))
+            {
+                AddError(Current, "Ожидалась точка с запятой ';' после описания поля");
+
+                if (Current != null && (IsType(Current) || Current.Value == "}"))
+                    return;
+
+                RecoverField();
+            }
         }
 
         private void RecoverField()
         {
-            while (!IsAtEnd() && Current.Value != ";" && Current.Value != "}")
+            while (!IsAtEnd())
             {
-                Advance();
-            }
+                if (Current.Value == "}")
+                    return;
 
-            if (!IsAtEnd() && Current.Value == ";")
-            {
+                if (Current.Value == ";")
+                {
+                    Advance();
+                    return;
+                }
+
+                if (IsType(Current))
+                    return;
+
                 Advance();
             }
         }
 
-        private bool RecoverTo(params string[] syncTokens)
+        private void RecoverTo(params string[] syncTokens)
         {
             while (!IsAtEnd() && !syncTokens.Contains(Current.Value))
             {
                 Advance();
             }
-
-            return !IsAtEnd();
-        }
-
-        private void AddTrailingFragmentError()
-        {
-            if (IsAtEnd())
-                return;
-
-            Lexeme first = Current;
-            StringBuilder fragment = new StringBuilder();
-            int startIndex = first.StartIndex;
-            int line = first.Line;
-            int position = first.StartColumn;
-            int totalLength = 0;
-
-            while (!IsAtEnd())
-            {
-                fragment.Append(Current.Value);
-                totalLength += Math.Max(1, Current.Length);
-                Advance();
-            }
-
-            _errors.Add(new ParserError
-            {
-                InvalidFragment = fragment.ToString(),
-                Line = line,
-                Position = position,
-                Description = "Лишний фрагмент после завершения определения структуры",
-                StartIndex = startIndex,
-                Length = totalLength
-            });
         }
 
         private bool MatchValue(string value)
@@ -356,7 +240,7 @@ namespace RGRCompilator
 
         private bool MatchIdentifier()
         {
-            if (Current != null && Current.TypeName == "идентификатор")
+            if (Current != null && IsIdentifier(Current))
             {
                 Advance();
                 return true;
@@ -365,45 +249,107 @@ namespace RGRCompilator
             return false;
         }
 
+        private bool IsIdentifier(Lexeme token)
+        {
+            return token != null && token.TypeName == "идентификатор";
+        }
+
         private bool IsType(Lexeme token)
         {
-            if (token == null)
-                return false;
+            return token != null && ValidTypes.Contains(token.Value);
+        }
 
-            string[] validTypes =
+        private bool IsFieldStart(Lexeme token)
+        {
+            return IsType(token);
+        }
+
+        private void AddTrailingFragmentError()
+        {
+            if (IsAtEnd())
+                return;
+
+            Lexeme first = Current;
+            StringBuilder sb = new StringBuilder();
+            int startIndex = first.StartIndex;
+            int totalLength = 0;
+
+            while (!IsAtEnd())
             {
-                "int", "char", "float", "double", "short", "long"
-            };
+                sb.Append(Current.Value);
+                totalLength += Math.Max(1, Current.Length);
+                Advance();
+            }
 
-            return validTypes.Contains(token.Value);
+            AddErrorInternal(
+                sb.ToString(),
+                first.Line,
+                first.StartColumn,
+                "Лишний фрагмент после завершения определения структуры",
+                startIndex,
+                totalLength
+            );
+        }
+
+        private void AddEndError(string description)
+        {
+            if (_tokens.Count == 0)
+            {
+                AddErrorInternal("(конец строки)", 1, 1, description, 0, 1);
+                return;
+            }
+
+            Lexeme last = _tokens[_tokens.Count - 1];
+            int startIndex = last.StartIndex + Math.Max(1, last.Length);
+
+            AddErrorInternal(
+                "(конец строки)",
+                last.Line,
+                last.EndColumn + 1,
+                description,
+                startIndex,
+                1
+            );
         }
 
         private void AddError(Lexeme token, string description)
         {
-            if (token != null)
+            if (token == null)
             {
-                _errors.Add(new ParserError
-                {
-                    InvalidFragment = token.Value,
-                    Line = token.Line,
-                    Position = token.StartColumn,
-                    Description = description,
-                    StartIndex = token.StartIndex,
-                    Length = token.Length > 0 ? token.Length : 1
-                });
+                AddEndError(description);
+                return;
             }
-            else
+
+            AddErrorInternal(
+                token.Value,
+                token.Line,
+                token.StartColumn,
+                description,
+                token.StartIndex,
+                token.Length > 0 ? token.Length : 1
+            );
+        }
+
+        private void AddErrorInternal(string invalidFragment, int line, int position, string description, int startIndex, int length)
+        {
+            ParserError last = _errors.Count > 0 ? _errors[_errors.Count - 1] : null;
+
+            if (last != null &&
+                last.StartIndex == startIndex &&
+                last.Description == description)
             {
-                _errors.Add(new ParserError
-                {
-                    InvalidFragment = "(конец строки)",
-                    Line = 1,
-                    Position = 1,
-                    Description = description,
-                    StartIndex = 0,
-                    Length = 1
-                });
+                return;
             }
+
+            _errors.Add(new ParserError
+            {
+                InvalidFragment = invalidFragment,
+                Line = line,
+                Position = position,
+                Description = description,
+                StartIndex = startIndex,
+                Length = Math.Max(1, length)
+            });
         }
 
         private bool IsAtEnd()

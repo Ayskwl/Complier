@@ -199,6 +199,23 @@ namespace RGRCompilator
 
             dgvParserResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
+        private void EnsureRegexColumns()
+        {
+            dgvRegexResults.Columns.Clear();
+
+            dgvRegexResults.Columns.Add("colFound", "Найденная подстрока");
+            dgvRegexResults.Columns.Add("colLocation", "Начальная позиция");
+            dgvRegexResults.Columns.Add("colLength", "Длина");
+
+            int cStart = dgvRegexResults.Columns.Add("colStart", "StartIndex");
+            dgvRegexResults.Columns[cStart].Visible = false;
+
+            int cLen = dgvRegexResults.Columns.Add("colLen", "Length");
+            dgvRegexResults.Columns[cLen].Visible = false;
+
+            dgvRegexResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        }
+
         private void FillLexicalErrorsTable(List<Lexeme> lexemes)
         {
             dgvLexerResults.Rows.Clear();
@@ -262,6 +279,17 @@ namespace RGRCompilator
             dgvParserResults.Rows.Clear();
             EnsureParserColumns();
 
+            if (result.Errors == null || result.Errors.Count == 0)
+            {
+                dgvParserResults.Rows.Add(
+                    "",
+                    "",
+                    "Синтаксических ошибок не обнаружено",
+                    -1,
+                    0
+                );
+                return;
+            }
             foreach (var err in result.Errors)
             {
                 dgvParserResults.Rows.Add(
@@ -281,6 +309,54 @@ namespace RGRCompilator
                 0
             );
         }
+        private void FillRegexTable(RegexSearchResponse response)
+        {
+            dgvRegexResults.Rows.Clear();
+            EnsureRegexColumns();
+
+            if (!response.Success)
+            {
+                dgvRegexResults.Rows.Add(
+                    "",
+                    "",
+                    response.Message,
+                    -1,
+                    0
+                );
+                return;
+            }
+
+            if (response.Results.Count == 0)
+            {
+                dgvRegexResults.Rows.Add(
+                    "",
+                    "",
+                    "Совпадений не найдено",
+                    -1,
+                    0
+                );
+                return;
+            }
+
+            foreach (var item in response.Results)
+            {
+                dgvRegexResults.Rows.Add(
+                    item.FoundText,
+                    item.Location,
+                    item.Length,
+                    item.StartIndex,
+                    item.Length
+                );
+            }
+
+            dgvRegexResults.Rows.Add(
+                "Общее количество совпадений:",
+                "",
+                response.Results.Count.ToString(),
+                -1,
+                0
+            );
+        }
 
         private void Complier_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -290,9 +366,8 @@ namespace RGRCompilator
 
         private void RunAnalyzer()
         {
-            dgvLexerResults.Rows.Clear();
-            dgvParserResults.Rows.Clear();
-            dgvRegexResults.Rows.Clear();
+
+            ClearAllResultTables();
             rtbEditor.SelectionLength = 0;
 
             string code = rtbEditor.Text ?? "";
@@ -305,20 +380,76 @@ namespace RGRCompilator
             var parser = new SyntaxParser(lexemes);
             ParserResult result = parser.Parse();
 
-            if (result.Success)
-            {
-                dgvParserResults.Rows.Clear();
-                EnsureParserColumns();
-            }
-            else
-            {
-                FillSyntaxErrorsTable(result);
-            }
-
-            //dgvRegexResults.Rows.Clear();
-            //EnsureRegexColumns();
+            FillSyntaxErrorsTable(result);
+            
+            RunRegexAnalyzer();
         }
+        private void RunRegexAnalyzer()
+        {
+            string text = rtbEditor.Text ?? "";
 
+            dgvRegexResults.Rows.Clear();
+            EnsureRegexColumns();
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                dgvRegexResults.Rows.Add("", "", "Нет данных для поиска", -1, 0);
+                return;
+            }
+
+            RegexSearchType selectedType = RegexSearchType.NumbersNotEndingWith5;
+
+            switch (cmbRegexType.SelectedIndex)
+            {
+                case 0:
+                    selectedType = RegexSearchType.NumbersNotEndingWith5;
+                    break;
+                case 1:
+                    selectedType = RegexSearchType.PythonComments;
+                    break;
+                case 2:
+                    selectedType = RegexSearchType.ChemicalElements;
+                    break;
+                default:
+                    selectedType = RegexSearchType.NumbersNotEndingWith5;
+                    break;
+            }
+
+            if (selectedType == RegexSearchType.PythonComments)
+            {
+                List<DfaSearchResult> results = PythonCommentDfaSearch.Search(text);
+
+                if (results.Count == 0)
+                {
+                    dgvRegexResults.Rows.Add("", "", "Совпадений не найдено", -1, 0);
+                    return;
+                }
+
+                foreach (var item in results)
+                {
+                    dgvRegexResults.Rows.Add(
+                        item.FoundText,
+                        item.Location,
+                        item.Length,
+                        item.StartIndex,
+                        item.Length
+                    );
+                }
+
+                dgvRegexResults.Rows.Add(
+                    "Общее количество совпадений:",
+                    "",
+                    results.Count.ToString(),
+                    -1,
+                    0
+                );
+
+                return;
+            }
+
+            RegexSearchResponse response = RegexSearchModule.Search(text, selectedType);
+            FillRegexTable(response);
+        }
         private void toolStripButtonAdd_Click(object sender, EventArgs e) => NewFile();
 
         private void ToolStripMenuItemAdd_Click(object sender, EventArgs e) => NewFile();
