@@ -23,6 +23,7 @@ namespace RGRCompilator
         public List<SemanticError> Errors { get; set; } = new List<SemanticError>();
         public SemanticAstNode Root { get; set; }
         public string AstText { get; set; }
+        public bool HasSyntaxError { get; set; }
 
         public int ErrorCount
         {

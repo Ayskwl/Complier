@@ -15,6 +15,7 @@ namespace RGRCompilator
         private string currentFilePath = null;
         private bool isModified = false;
         private bool suppressModifiedFlag = false;
+        private SemanticResult semanticResult;
 
         public Complier()
         {
@@ -44,6 +45,7 @@ namespace RGRCompilator
 
             EnsureLexerColumns();
             EnsureParserColumns();
+            EnsureSemanticColumns();
             //EnsureRegexColumns();
 
             UpdateFormTitle();
@@ -95,7 +97,7 @@ namespace RGRCompilator
             currentFilePath = null;
             isModified = false;
             UpdateFormTitle();
-            ClearAllResultTables(); 
+            ClearAllResultTables();
         }
 
         private bool SaveFile()
@@ -164,6 +166,7 @@ namespace RGRCompilator
             dgvLexerResults.Rows.Clear();
             dgvParserResults.Rows.Clear();
             dgvRegexResults.Rows.Clear();
+            dgvSemanticResults.Rows.Clear();
         }
         private void EnsureLexerColumns()
         {
@@ -216,36 +219,101 @@ namespace RGRCompilator
             dgvRegexResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
-        private void FillLexicalErrorsTable(List<Lexeme> lexemes)
+        private void EnsureSemanticColumns()
         {
-            dgvLexerResults.Rows.Clear();
-            EnsureLexerColumns();
+            dgvSemanticResults.Columns.Clear();
 
-            var lexicalErrors = lexemes.Where(x => x.IsError).ToList();
+            dgvSemanticResults.Columns.Add("colMessage", "Сообщение");
+            dgvSemanticResults.Columns.Add("colPosition", "Позиция");
 
-            foreach (var lex in lexicalErrors)
+            int cStart = dgvSemanticResults.Columns.Add("colStart", "StartIndex");
+            dgvSemanticResults.Columns[cStart].Visible = false;
+
+            int cLen = dgvSemanticResults.Columns.Add("colLen", "Length");
+            dgvSemanticResults.Columns[cLen].Visible = false;
+
+            dgvSemanticResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        }
+
+        private void FillSemanticTable(SemanticResult result)
+        {
+            dgvSemanticResults.Rows.Clear();
+            EnsureSemanticColumns();
+
+            dgvSemanticResults.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dgvSemanticResults.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+
+            string code = rtbEditor.Text ?? "";
+
+            if (string.IsNullOrWhiteSpace(code))
             {
-                dgvLexerResults.Rows.Add(
-                    lex.Code,
-                    $"ошибка: {lex.ErrorMessage}",
-                    lex.Value,
-                    $"строка {lex.Line}, позиция {lex.StartColumn}",
-                    lex.StartIndex,
-                    lex.Length,
-                    lex.IsError
+                dgvSemanticResults.Rows.Add(
+                    "Пустой текст",
+                    "строка 1, символ 1",
+                    0,
+                    1
+                );
+
+                dgvSemanticResults.Rows.Add(
+                    "Количество ошибок: 1",
+                    "",
+                    -1,
+                    0
+                );
+
+                return;
+            }
+
+            if (result == null)
+            {
+                dgvSemanticResults.Rows.Add(
+                    "Результат семантического анализа отсутствует",
+                    "",
+                    -1,
+                    0
+                );
+
+                dgvSemanticResults.Rows.Add(
+                    "Количество ошибок: 1",
+                    "",
+                    -1,
+                    0
+                );
+
+                return;
+            }
+
+            if (result.Errors != null && result.Errors.Count > 0)
+            {
+                foreach (var err in result.Errors)
+                {
+                    dgvSemanticResults.Rows.Add(
+                        err.Message,
+                        err.Location,
+                        err.StartIndex,
+                        err.Length
+                    );
+                }
+            }
+            else
+            {
+                dgvSemanticResults.Rows.Add(
+                    "Семантических ошибок не обнаружено",
+                    "",
+                    -1,
+                    0
                 );
             }
 
-            dgvLexerResults.Rows.Add(
-                "",
-                "Общее количество ошибок:",
-                lexicalErrors.Count.ToString(),
+            dgvSemanticResults.Rows.Add(
+                "Количество ошибок: " + result.ErrorCount,
                 "",
                 -1,
-                0,
-                false
+                0
             );
         }
+
+
         private void FillLexerTable(List<Lexeme> lexemes)
         {
             dgvLexerResults.Rows.Clear();
@@ -366,7 +434,6 @@ namespace RGRCompilator
 
         private void RunAnalyzer()
         {
-
             ClearAllResultTables();
             rtbEditor.SelectionLength = 0;
 
@@ -378,10 +445,15 @@ namespace RGRCompilator
             FillLexerTable(lexemes);
 
             var parser = new SyntaxParser(lexemes);
-            ParserResult result = parser.Parse();
+            ParserResult syntaxResult = parser.Parse();
 
-            FillSyntaxErrorsTable(result);
-            
+            FillSyntaxErrorsTable(syntaxResult);
+
+            var semanticParser = new SemanticParser(lexemes);
+            SemanticResult semanticResult = semanticParser.Analyze(lexemes);
+
+            FillSemanticTable(semanticResult);
+
             RunRegexAnalyzer();
         }
         private void RunRegexAnalyzer()
@@ -415,40 +487,7 @@ namespace RGRCompilator
                     break;
             }
 
-            if (selectedType == RegexSearchType.PythonComments)
-            {
-                List<DfaSearchResult> results = PythonCommentDfaSearch.Search(text);
-
-                if (results.Count == 0)
-                {
-                    dgvRegexResults.Rows.Add("", "", "Совпадений не найдено", -1, 0);
-                    return;
-                }
-
-                foreach (var item in results)
-                {
-                    dgvRegexResults.Rows.Add(
-                        item.FoundText,
-                        item.Location,
-                        item.Length,
-                        item.StartIndex,
-                        item.Length
-                    );
-                }
-
-                dgvRegexResults.Rows.Add(
-                    "Общее количество совпадений:",
-                    "",
-                    results.Count.ToString(),
-                    -1,
-                    0
-                );
-
-                return;
-            }
-
-            RegexSearchResponse response = RegexSearchModule.Search(text, selectedType);
-            FillRegexTable(response);
+            
         }
         private void toolStripButtonAdd_Click(object sender, EventArgs e) => NewFile();
 
@@ -492,9 +531,9 @@ namespace RGRCompilator
             OpenFile();
         }
 
-        private void toolStripButtonOpen_Click(object sender, EventArgs e) 
-        { 
-            OpenFile(); 
+        private void toolStripButtonOpen_Click(object sender, EventArgs e)
+        {
+            OpenFile();
         }
 
         private void toolStripButtonStart_Click(object sender, EventArgs e)
@@ -527,7 +566,7 @@ namespace RGRCompilator
             if (rtbEditor.CanRedo) rtbEditor.Redo();
         }
 
-        private void ToolStripMenuItemReplied_Click(object sender, EventArgs e)
+        private void ToolStripMenuItemReplied_Click_1(object sender, EventArgs e)
         {
             if (rtbEditor.CanRedo) rtbEditor.Redo();
         }
@@ -548,8 +587,8 @@ namespace RGRCompilator
         }
 
         private void ToolStripMenuItemPaste_Click(object sender, EventArgs e)
-        { 
-            rtbEditor.Paste(); 
+        {
+            rtbEditor.Paste();
         }
         private void ToolStripMenuItemDelete_Click(object sender, EventArgs e)
         {
@@ -557,9 +596,9 @@ namespace RGRCompilator
                 rtbEditor.SelectedText = string.Empty;
         }
 
-        private void ToolStripMenuItemSelectAll_Click(object sender, EventArgs e) 
-        { 
-            rtbEditor.SelectAll(); 
+        private void ToolStripMenuItemSelectAll_Click(object sender, EventArgs e)
+        {
+            rtbEditor.SelectAll();
         }
 
         private void NavigateAndHighlight(DataGridView grid, int rowIndex)
@@ -624,9 +663,113 @@ namespace RGRCompilator
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }
-        
+
         private void ToolStripMenuItemUserGuide_Click(object sender, EventArgs e) => ShowUserGuide();
 
         private void toolStripButtonRefs_Click(object sender, EventArgs e) => ShowUserGuide();
+
+        private void toolStripButtonPaste_Click(object sender, EventArgs e)
+        {
+            rtbEditor.Paste();
+        }
+
+        private void toolStripButtonDelete_Click(object sender, EventArgs e)
+        {
+            rtbEditor.Cut();
+        }
+
+        private void dgvSemanticResults_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            NavigateAndHighlight(dgvSemanticResults, e.RowIndex);
+        }
+
+
+        private void btnShowAst_Click(object sender, EventArgs e)
+        {
+            string source = rtbEditor.Text; 
+
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                MessageBox.Show("Введите текст.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            LexicalAnalyzer lexer = new LexicalAnalyzer();
+            List<Lexeme> tokens = lexer.Analyze(source);
+
+            SemanticParser parser = new SemanticParser(tokens);
+            semanticResult = parser.Analyze(tokens);
+
+            FillSemanticTable(semanticResult);
+
+            if (semanticResult == null)
+            {
+                MessageBox.Show("Результат анализа не получен.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (semanticResult.HasSyntaxError)
+            {
+                MessageBox.Show("При наличии синтаксической ошибки дерево не выводится.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(semanticResult.AstText))
+            {
+                MessageBox.Show("AST не построено.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            AstTextForm form = new AstTextForm(semanticResult.AstText);
+            form.ShowDialog();
+        }
+
+        private void btnBuildTree_Click(object sender, EventArgs e)
+        {
+            string source = rtbEditor.Text; 
+
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                MessageBox.Show("Введите текст.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            LexicalAnalyzer lexer = new LexicalAnalyzer();
+            List<Lexeme> tokens = lexer.Analyze(source);
+
+            SemanticParser parser = new SemanticParser(tokens);
+            semanticResult = parser.Analyze(tokens);
+
+            FillSemanticTable(semanticResult);
+
+            if (semanticResult == null)
+            {
+                MessageBox.Show("Результат анализа не получен.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (semanticResult.HasSyntaxError)
+            {
+                MessageBox.Show("При наличии синтаксической ошибки AST не отображается.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (semanticResult.Root == null)
+            {
+                MessageBox.Show("AST не построено.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            AstForm form = new AstForm(semanticResult.Root);
+            form.ShowDialog();
+        }
     }
 }

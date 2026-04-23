@@ -172,6 +172,7 @@ namespace RGRCompilator
                 return;
 
             _syntaxErrorAdded = true;
+            result.HasSyntaxError = true;
 
             if (lex == null)
             {
