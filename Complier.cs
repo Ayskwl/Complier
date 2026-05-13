@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace RGRCompilator
 {
@@ -32,6 +31,8 @@ namespace RGRCompilator
             dgvLexerResults.CellClick += dgvLexerResults_CellClick;
             dgvParserResults.CellClick += dgvParserResults_CellClick;
             dgvRegexResults.CellClick += dgvRegexResults_CellClick;
+            dgvLab6Tetrads.CellClick += dgvLab6Tetrads_CellContentClick;
+            dgvLab6Errors.CellClick += dgvLab6Errors_CellContentClick;
 
             rtbEditor.WordWrap = false;
             rtbEditor.ScrollBars = RichTextBoxScrollBars.Both;
@@ -40,12 +41,21 @@ namespace RGRCompilator
             SetupGrid(dgvParserResults);
             SetupGrid(dgvRegexResults);
 
+            SetupGrid(dgvLab6Errors);
+            SetupGrid(dgvLab6Tetrads);
+
+            rtbPOLIZ.ReadOnly = true;
+            rtbPOLIZ.WordWrap = false;
+            rtbPOLIZ.ScrollBars = RichTextBoxScrollBars.Both;
+
             rtbEditor.TextChanged += rtbEditor_TextChanged;
             this.FormClosing += Complier_FormClosing;
 
             EnsureLexerColumns();
             EnsureParserColumns();
             EnsureSemanticColumns();
+            EnsureLab6ErrorsColumns();
+            EnsureLab6TetradsColumns();
             //EnsureRegexColumns();
 
             UpdateFormTitle();
@@ -167,6 +177,8 @@ namespace RGRCompilator
             dgvParserResults.Rows.Clear();
             dgvRegexResults.Rows.Clear();
             dgvSemanticResults.Rows.Clear();
+            dgvLab6Errors.Rows.Clear();
+            dgvLab6Tetrads.Rows.Clear();
         }
         private void EnsureLexerColumns()
         {
@@ -201,6 +213,260 @@ namespace RGRCompilator
             dgvParserResults.Columns[cLen].Visible = false;
 
             dgvParserResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        }
+        private void EnsureLab6ErrorsColumns()
+        {
+            dgvLab6Errors.Columns.Clear();
+
+            dgvLab6Errors.Columns.Add("colFragment", "Неверный фрагмент");
+            dgvLab6Errors.Columns.Add("colLocation", "Местоположение");
+            dgvLab6Errors.Columns.Add("colDescription", "Описание");
+
+            int cStart = dgvLab6Errors.Columns.Add("colStart", "StartIndex");
+            dgvLab6Errors.Columns[cStart].Visible = false;
+
+            int cLen = dgvLab6Errors.Columns.Add("colLen", "Length");
+            dgvLab6Errors.Columns[cLen].Visible = false;
+
+            dgvLab6Errors.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvLab6Errors.AllowUserToAddRows = false;
+            dgvLab6Errors.ReadOnly = true;
+            dgvLab6Errors.RowHeadersVisible = true;
+        }
+
+        private void EnsureLab6TetradsColumns()
+        {
+            dgvLab6Tetrads.Columns.Clear();
+
+            dgvLab6Tetrads.Columns.Add("colNumber", "№");
+            dgvLab6Tetrads.Columns.Add("colTetrad", "Тетрада");
+            dgvLab6Tetrads.Columns.Add("colExplanation", "Описание");
+
+            dgvLab6Tetrads.Columns["colNumber"].Width = 50;
+            dgvLab6Tetrads.Columns["colTetrad"].Width = 230;
+            dgvLab6Tetrads.Columns["colExplanation"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
+            dgvLab6Tetrads.AllowUserToAddRows = false;
+            dgvLab6Tetrads.ReadOnly = true;
+            dgvLab6Tetrads.RowHeadersVisible = true;
+        }
+        private string GetLab6Location(string text, int index)
+        {
+            if (index < 0)
+                return "-";
+
+            if (text == null)
+                text = "";
+
+            if (index > text.Length)
+                index = text.Length;
+
+            int line = 1;
+            int column = 1;
+
+            for (int i = 0; i < index; i++)
+            {
+                if (text[i] == '\n')
+                {
+                    line++;
+                    column = 1;
+                }
+                else
+                {
+                    column++;
+                }
+            }
+
+            return $"строка {line}, позиция {column}";
+        }
+
+        private void RunLab6Analyzer()
+        {
+            dgvLab6Errors.Rows.Clear();
+            dgvLab6Tetrads.Rows.Clear();
+            rtbPOLIZ.Clear();
+
+            EnsureLab6ErrorsColumns();
+            EnsureLab6TetradsColumns();
+
+            string text = rtbEditor.Text ?? "";
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                dgvLab6Errors.Rows.Add(
+                    "(конец строки)",
+                    "строка 1, позиция 1",
+                    "Введён пустой текст",
+                    0,
+                    1
+                );
+
+                dgvLab6Errors.Rows.Add(
+                    "Общее количество ошибок:",
+                    "",
+                    "1",
+                    -1,
+                    0
+                );
+
+                dgvLab6Tetrads.Rows.Add(
+                    "",
+                    "",
+                    "Тетрады не построены, так как выражение пустое."
+                );
+
+                rtbPOLIZ.Text = "ПОЛИЗ не построен, так как выражение пустое.";
+
+                return;
+            }
+
+            Lab6Lexer lexer = new Lab6Lexer();
+            List<Token> tokens = lexer.Analyze(text);
+
+            if (lexer.ErrorInfos.Count > 0)
+            {
+                foreach (Lab6ErrorInfo error in lexer.ErrorInfos)
+                {
+                    dgvLab6Errors.Rows.Add(
+                        error.Fragment,
+                        GetLab6Location(text, error.Position),
+                        error.Description,
+                        error.Position,
+                        error.Length
+                    );
+                }
+
+                dgvLab6Errors.Rows.Add(
+                    "Общее количество ошибок:",
+                    "",
+                    lexer.ErrorInfos.Count.ToString(),
+                    -1,
+                    0
+                );
+
+                dgvLab6Tetrads.Rows.Add(
+                    "",
+                    "",
+                    "Тетрады не строятся, так как обнаружены лексические ошибки."
+                );
+
+                rtbPOLIZ.Text =
+                    "ПОЛИЗ не строится, так как обнаружены лексические ошибки.";
+
+                return;
+            }
+
+            Lab6ParserTetrads parser = new Lab6ParserTetrads();
+            bool syntaxOk = parser.Parse(tokens);
+
+            if (!syntaxOk)
+            {
+                foreach (Lab6ErrorInfo error in parser.ErrorInfos)
+                {
+                    dgvLab6Errors.Rows.Add(
+                        error.Fragment,
+                        GetLab6Location(text, error.Position),
+                        error.Description,
+                        error.Position,
+                        error.Length
+                    );
+                }
+
+                dgvLab6Errors.Rows.Add(
+                    "Общее количество ошибок:",
+                    "",
+                    parser.ErrorInfos.Count.ToString(),
+                    -1,
+                    0
+                );
+
+                dgvLab6Tetrads.Rows.Add(
+                    "",
+                    "",
+                    "Тетрады не строятся, так как обнаружены синтаксические ошибки."
+                );
+
+                rtbPOLIZ.Text =
+                    "ПОЛИЗ не строится, так как обнаружены синтаксические ошибки.";
+
+                return;
+            }
+
+            dgvLab6Errors.Rows.Add(
+                "",
+                "",
+                "Лексических и синтаксических ошибок не обнаружено.",
+                -1,
+                0
+            );
+
+            int number = 1;
+
+            foreach (Tetrad tetrad in parser.Tetrads)
+            {
+                string tetradText = "(" +
+                                    tetrad.Op + ", " +
+                                    tetrad.Arg1 + ", " +
+                                    tetrad.Arg2 + ", " +
+                                    tetrad.Result + ")";
+
+                string explanation = tetrad.Result + " = " +
+                                     tetrad.Arg1 + " " +
+                                     tetrad.Op + " " +
+                                     tetrad.Arg2;
+
+                dgvLab6Tetrads.Rows.Add(
+                    number,
+                    tetradText,
+                    explanation
+                );
+
+                number++;
+            }
+
+            if (parser.Tetrads.Count == 0)
+            {
+                dgvLab6Tetrads.Rows.Add(
+                    "",
+                    "",
+                    "Тетрады отсутствуют, так как выражение состоит из одного операнда."
+                );
+            }
+
+            Lab6Poliz polizAnalyzer = new Lab6Poliz();
+
+            if (!polizAnalyzer.CanBuildPoliz(tokens))
+            {
+                rtbPOLIZ.Text =
+                    "ПОЛИЗ не построен.\n\n" +
+                    string.Join("\n", polizAnalyzer.Errors);
+
+                return;
+            }
+
+            List<string> poliz = polizAnalyzer.Build(tokens);
+            string polizText = string.Join(" ", poliz);
+
+            rtbPOLIZ.AppendText("Польская инверсная запись:\n");
+            rtbPOLIZ.AppendText(polizText + "\n\n");
+
+            try
+            {
+                int result = polizAnalyzer.Calculate(poliz);
+
+                rtbPOLIZ.AppendText("Результат вычисления:\n");
+                rtbPOLIZ.AppendText(result.ToString());
+            }
+            catch (DivideByZeroException)
+            {
+                rtbPOLIZ.AppendText("Ошибка вычисления:\n");
+                rtbPOLIZ.AppendText("Деление на ноль.");
+            }
+            catch (Exception ex)
+            {
+                rtbPOLIZ.AppendText("Ошибка вычисления:\n");
+                rtbPOLIZ.AppendText(ex.Message);
+            }
         }
         private void EnsureRegexColumns()
         {
@@ -455,6 +721,8 @@ namespace RGRCompilator
             FillSemanticTable(semanticResult);
 
             RunRegexAnalyzer();
+
+            RunLab6Analyzer();
         }
         private void RunRegexAnalyzer()
         {
@@ -770,6 +1038,16 @@ namespace RGRCompilator
 
             AstForm form = new AstForm(semanticResult.Root);
             form.ShowDialog();
+        }
+
+        private void dgvLab6Errors_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            NavigateAndHighlight(dgvLab6Errors, e.RowIndex);
+        }
+
+        private void dgvLab6Tetrads_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            NavigateAndHighlight(dgvLab6Tetrads, e.RowIndex);
         }
     }
 }

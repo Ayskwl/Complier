@@ -72,11 +72,23 @@
             this.rtbEditor = new System.Windows.Forms.RichTextBox();
             this.tcResult = new System.Windows.Forms.TabControl();
             this.tabPageLexer = new System.Windows.Forms.TabPage();
-            this.tabPageParser = new System.Windows.Forms.TabPage();
-            this.tabPageRegex = new System.Windows.Forms.TabPage();
             this.dgvLexerResults = new System.Windows.Forms.DataGridView();
+            this.tabPageParser = new System.Windows.Forms.TabPage();
             this.dgvParserResults = new System.Windows.Forms.DataGridView();
+            this.tabPageRegex = new System.Windows.Forms.TabPage();
+            this.cmbRegexType = new System.Windows.Forms.ComboBox();
             this.dgvRegexResults = new System.Windows.Forms.DataGridView();
+            this.Semantika = new System.Windows.Forms.TabPage();
+            this.dgvSemanticResults = new System.Windows.Forms.DataGridView();
+            this.Panel = new System.Windows.Forms.Panel();
+            this.tabPageLexer1 = new System.Windows.Forms.TabPage();
+            this.dgvLab6Errors = new System.Windows.Forms.DataGridView();
+            this.tabPageParser1 = new System.Windows.Forms.TabPage();
+            this.dgvLab6Tetrads = new System.Windows.Forms.DataGridView();
+            this.tabPagePOLIS = new System.Windows.Forms.TabPage();
+            this.rtbPOLIZ = new System.Windows.Forms.RichTextBox();
+            this.btnShowAst = new System.Windows.Forms.Button();
+            this.btnBuildTree = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -85,11 +97,18 @@
             this.splitContainer1.SuspendLayout();
             this.tcResult.SuspendLayout();
             this.tabPageLexer.SuspendLayout();
-            this.tabPageParser.SuspendLayout();
-            this.tabPageRegex.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLexerResults)).BeginInit();
+            this.tabPageParser.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvParserResults)).BeginInit();
+            this.tabPageRegex.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvRegexResults)).BeginInit();
+            this.Semantika.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSemanticResults)).BeginInit();
+            this.tabPageLexer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvLab6Errors)).BeginInit();
+            this.tabPageParser1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvLab6Tetrads)).BeginInit();
+            this.tabPagePOLIS.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -104,7 +123,7 @@
             this.справкаToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 30);
+            this.menuStrip1.Size = new System.Drawing.Size(800, 27);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -117,7 +136,7 @@
             this.ToolStripMenuItemSaveAs,
             this.ToolStripMenuItemExit});
             this.ToolStripMenuItemFile.Name = "ToolStripMenuItemFile";
-            this.ToolStripMenuItemFile.Size = new System.Drawing.Size(59, 26);
+            this.ToolStripMenuItemFile.Size = new System.Drawing.Size(59, 23);
             this.ToolStripMenuItemFile.Text = "Файл";
             // 
             // ToolStripMenuItemAdd
@@ -166,7 +185,7 @@
             this.ToolStripMenuItemDelete,
             this.ToolStripMenuItemSelectAll});
             this.правкаToolStripMenuItem.Name = "правкаToolStripMenuItem";
-            this.правкаToolStripMenuItem.Size = new System.Drawing.Size(73, 26);
+            this.правкаToolStripMenuItem.Size = new System.Drawing.Size(73, 23);
             this.правкаToolStripMenuItem.Text = "Правка";
             // 
             // ToolStripMenuItemCancel
@@ -180,6 +199,7 @@
             this.ToolStripMenuItemReplied.Name = "ToolStripMenuItemReplied";
             this.ToolStripMenuItemReplied.Size = new System.Drawing.Size(190, 26);
             this.ToolStripMenuItemReplied.Text = "Вернуть";
+            this.ToolStripMenuItemReplied.Click += new System.EventHandler(this.ToolStripMenuItemReplied_Click_1);
             // 
             // ToolStripMenuItemCut
             // 
@@ -227,7 +247,7 @@
             this.списокЛитературыToolStripMenuItem,
             this.исходныйКодПрограммыToolStripMenuItem});
             this.текстToolStripMenuItem.Name = "текстToolStripMenuItem";
-            this.текстToolStripMenuItem.Size = new System.Drawing.Size(62, 26);
+            this.текстToolStripMenuItem.Size = new System.Drawing.Size(62, 23);
             this.текстToolStripMenuItem.Text = "Текст";
             // 
             // постановкаЗадачиToolStripMenuItem
@@ -275,7 +295,7 @@
             // ToolStripMenuItemStart
             // 
             this.ToolStripMenuItemStart.Name = "ToolStripMenuItemStart";
-            this.ToolStripMenuItemStart.Size = new System.Drawing.Size(59, 26);
+            this.ToolStripMenuItemStart.Size = new System.Drawing.Size(59, 23);
             this.ToolStripMenuItemStart.Text = "Пуск";
             this.ToolStripMenuItemStart.Click += new System.EventHandler(this.ToolStripMenuItemStart_Click);
             // 
@@ -285,7 +305,7 @@
             this.ToolStripMenuItemUserGuide,
             this.ToolStripMenuItemAboutProgram});
             this.справкаToolStripMenuItem.Name = "справкаToolStripMenuItem";
-            this.справкаToolStripMenuItem.Size = new System.Drawing.Size(80, 26);
+            this.справкаToolStripMenuItem.Size = new System.Drawing.Size(80, 23);
             this.справкаToolStripMenuItem.Text = "Справка";
             // 
             // ToolStripMenuItemUserGuide
@@ -317,9 +337,9 @@
             this.toolStripButtonStart,
             this.toolStripButtonInfo,
             this.toolStripButtonRefs});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 30);
+            this.toolStrip1.Location = new System.Drawing.Point(0, 27);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(800, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(800, 27);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -329,7 +349,7 @@
             this.toolStripButtonAdd.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonAdd.Image")));
             this.toolStripButtonAdd.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonAdd.Name = "toolStripButtonAdd";
-            this.toolStripButtonAdd.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonAdd.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonAdd.Text = "Создать";
             this.toolStripButtonAdd.Click += new System.EventHandler(this.toolStripButtonAdd_Click);
             // 
@@ -339,7 +359,7 @@
             this.toolStripButtonOpen.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonOpen.Image")));
             this.toolStripButtonOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonOpen.Name = "toolStripButtonOpen";
-            this.toolStripButtonOpen.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonOpen.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonOpen.Text = "Открыть";
             this.toolStripButtonOpen.Click += new System.EventHandler(this.toolStripButtonOpen_Click);
             // 
@@ -349,7 +369,7 @@
             this.toolStripButtonSave.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonSave.Image")));
             this.toolStripButtonSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonSave.Name = "toolStripButtonSave";
-            this.toolStripButtonSave.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonSave.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonSave.Text = "Сохранить";
             this.toolStripButtonSave.Click += new System.EventHandler(this.toolStripButtonSave_Click);
             // 
@@ -359,7 +379,7 @@
             this.toolStripButtonBack.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonBack.Image")));
             this.toolStripButtonBack.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonBack.Name = "toolStripButtonBack";
-            this.toolStripButtonBack.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonBack.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonBack.Text = "Отменить";
             // 
             // toolStripButtonForward
@@ -368,7 +388,7 @@
             this.toolStripButtonForward.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonForward.Image")));
             this.toolStripButtonForward.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonForward.Name = "toolStripButtonForward";
-            this.toolStripButtonForward.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonForward.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonForward.Text = "Вернуть ";
             // 
             // toolStripButtonCopy
@@ -377,7 +397,7 @@
             this.toolStripButtonCopy.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonCopy.Image")));
             this.toolStripButtonCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonCopy.Name = "toolStripButtonCopy";
-            this.toolStripButtonCopy.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonCopy.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonCopy.Text = "Копировать";
             this.toolStripButtonCopy.Click += new System.EventHandler(this.toolStripButtonCopy_Click);
             // 
@@ -387,8 +407,9 @@
             this.toolStripButtonDelete.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonDelete.Image")));
             this.toolStripButtonDelete.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonDelete.Name = "toolStripButtonDelete";
-            this.toolStripButtonDelete.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonDelete.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonDelete.Text = "Вырезать";
+            this.toolStripButtonDelete.Click += new System.EventHandler(this.toolStripButtonDelete_Click);
             // 
             // toolStripButtonPaste
             // 
@@ -396,8 +417,9 @@
             this.toolStripButtonPaste.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonPaste.Image")));
             this.toolStripButtonPaste.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonPaste.Name = "toolStripButtonPaste";
-            this.toolStripButtonPaste.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonPaste.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonPaste.Text = "Вставить";
+            this.toolStripButtonPaste.Click += new System.EventHandler(this.toolStripButtonPaste_Click);
             // 
             // toolStripButtonStart
             // 
@@ -405,7 +427,7 @@
             this.toolStripButtonStart.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonStart.Image")));
             this.toolStripButtonStart.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonStart.Name = "toolStripButtonStart";
-            this.toolStripButtonStart.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonStart.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonStart.Text = "Пуск";
             this.toolStripButtonStart.Click += new System.EventHandler(this.toolStripButtonStart_Click);
             // 
@@ -415,7 +437,7 @@
             this.toolStripButtonInfo.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonInfo.Image")));
             this.toolStripButtonInfo.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonInfo.Name = "toolStripButtonInfo";
-            this.toolStripButtonInfo.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonInfo.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonInfo.Text = "О программе";
             this.toolStripButtonInfo.Click += new System.EventHandler(this.toolStripButtonInfo_Click);
             // 
@@ -425,14 +447,14 @@
             this.toolStripButtonRefs.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonRefs.Image")));
             this.toolStripButtonRefs.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonRefs.Name = "toolStripButtonRefs";
-            this.toolStripButtonRefs.Size = new System.Drawing.Size(29, 28);
+            this.toolStripButtonRefs.Size = new System.Drawing.Size(29, 24);
             this.toolStripButtonRefs.Text = "Справка";
             this.toolStripButtonRefs.Click += new System.EventHandler(this.toolStripButtonRefs_Click);
             // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 61);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 54);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -445,8 +467,8 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tcResult);
             this.splitContainer1.Panel2.Font = new System.Drawing.Font("Times New Roman", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.splitContainer1.Size = new System.Drawing.Size(800, 389);
-            this.splitContainer1.SplitterDistance = 258;
+            this.splitContainer1.Size = new System.Drawing.Size(800, 396);
+            this.splitContainer1.SplitterDistance = 259;
             this.splitContainer1.TabIndex = 2;
             // 
             // rtbEditor
@@ -454,7 +476,7 @@
             this.rtbEditor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtbEditor.Location = new System.Drawing.Point(0, 0);
             this.rtbEditor.Name = "rtbEditor";
-            this.rtbEditor.Size = new System.Drawing.Size(800, 258);
+            this.rtbEditor.Size = new System.Drawing.Size(800, 259);
             this.rtbEditor.TabIndex = 0;
             this.rtbEditor.Text = "";
             this.rtbEditor.WordWrap = false;
@@ -465,11 +487,15 @@
             this.tcResult.Controls.Add(this.tabPageLexer);
             this.tcResult.Controls.Add(this.tabPageParser);
             this.tcResult.Controls.Add(this.tabPageRegex);
+            this.tcResult.Controls.Add(this.Semantika);
+            this.tcResult.Controls.Add(this.tabPageLexer1);
+            this.tcResult.Controls.Add(this.tabPageParser1);
+            this.tcResult.Controls.Add(this.tabPagePOLIS);
             this.tcResult.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcResult.Location = new System.Drawing.Point(0, 0);
             this.tcResult.Name = "tcResult";
             this.tcResult.SelectedIndex = 0;
-            this.tcResult.Size = new System.Drawing.Size(800, 127);
+            this.tcResult.Size = new System.Drawing.Size(800, 133);
             this.tcResult.TabIndex = 0;
             // 
             // tabPageLexer
@@ -478,10 +504,22 @@
             this.tabPageLexer.Location = new System.Drawing.Point(4, 28);
             this.tabPageLexer.Name = "tabPageLexer";
             this.tabPageLexer.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageLexer.Size = new System.Drawing.Size(792, 95);
+            this.tabPageLexer.Size = new System.Drawing.Size(792, 101);
             this.tabPageLexer.TabIndex = 0;
             this.tabPageLexer.Text = "Лексер";
             this.tabPageLexer.UseVisualStyleBackColor = true;
+            // 
+            // dgvLexerResults
+            // 
+            this.dgvLexerResults.BackgroundColor = System.Drawing.Color.LavenderBlush;
+            this.dgvLexerResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvLexerResults.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvLexerResults.Location = new System.Drawing.Point(3, 3);
+            this.dgvLexerResults.Name = "dgvLexerResults";
+            this.dgvLexerResults.RowHeadersWidth = 51;
+            this.dgvLexerResults.RowTemplate.Height = 24;
+            this.dgvLexerResults.Size = new System.Drawing.Size(786, 95);
+            this.dgvLexerResults.TabIndex = 0;
             // 
             // tabPageParser
             // 
@@ -489,53 +527,178 @@
             this.tabPageParser.Location = new System.Drawing.Point(4, 28);
             this.tabPageParser.Name = "tabPageParser";
             this.tabPageParser.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageParser.Size = new System.Drawing.Size(792, 95);
+            this.tabPageParser.Size = new System.Drawing.Size(792, 101);
             this.tabPageParser.TabIndex = 1;
             this.tabPageParser.Text = "Парсер";
             this.tabPageParser.UseVisualStyleBackColor = true;
             // 
-            // tabPageRegex
-            // 
-            this.tabPageRegex.Controls.Add(this.dgvRegexResults);
-            this.tabPageRegex.Location = new System.Drawing.Point(4, 28);
-            this.tabPageRegex.Name = "tabPageRegex";
-            this.tabPageRegex.Size = new System.Drawing.Size(792, 95);
-            this.tabPageRegex.TabIndex = 2;
-            this.tabPageRegex.Text = "РВ";
-            this.tabPageRegex.UseVisualStyleBackColor = true;
-            // 
-            // dgvLexerResults
-            // 
-            this.dgvLexerResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvLexerResults.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvLexerResults.Location = new System.Drawing.Point(3, 3);
-            this.dgvLexerResults.Name = "dgvLexerResults";
-            this.dgvLexerResults.RowHeadersWidth = 51;
-            this.dgvLexerResults.RowTemplate.Height = 24;
-            this.dgvLexerResults.Size = new System.Drawing.Size(786, 89);
-            this.dgvLexerResults.TabIndex = 0;
-            // 
             // dgvParserResults
             // 
+            this.dgvParserResults.BackgroundColor = System.Drawing.Color.LavenderBlush;
             this.dgvParserResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvParserResults.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvParserResults.Location = new System.Drawing.Point(3, 3);
             this.dgvParserResults.Name = "dgvParserResults";
             this.dgvParserResults.RowHeadersWidth = 51;
             this.dgvParserResults.RowTemplate.Height = 24;
-            this.dgvParserResults.Size = new System.Drawing.Size(786, 89);
+            this.dgvParserResults.Size = new System.Drawing.Size(786, 95);
             this.dgvParserResults.TabIndex = 0;
+            // 
+            // tabPageRegex
+            // 
+            this.tabPageRegex.Controls.Add(this.cmbRegexType);
+            this.tabPageRegex.Controls.Add(this.dgvRegexResults);
+            this.tabPageRegex.Location = new System.Drawing.Point(4, 28);
+            this.tabPageRegex.Name = "tabPageRegex";
+            this.tabPageRegex.Size = new System.Drawing.Size(792, 101);
+            this.tabPageRegex.TabIndex = 2;
+            this.tabPageRegex.Text = "РВ";
+            this.tabPageRegex.UseVisualStyleBackColor = true;
+            // 
+            // cmbRegexType
+            // 
+            this.cmbRegexType.Dock = System.Windows.Forms.DockStyle.Top;
+            this.cmbRegexType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbRegexType.FormattingEnabled = true;
+            this.cmbRegexType.Items.AddRange(new object[] {
+            "Числа, не оканчивающиеся на 5",
+            "Комментарии Python",
+            "Химические элементы"});
+            this.cmbRegexType.Location = new System.Drawing.Point(0, 0);
+            this.cmbRegexType.Name = "cmbRegexType";
+            this.cmbRegexType.Size = new System.Drawing.Size(792, 27);
+            this.cmbRegexType.TabIndex = 1;
             // 
             // dgvRegexResults
             // 
+            this.dgvRegexResults.BackgroundColor = System.Drawing.Color.LavenderBlush;
             this.dgvRegexResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvRegexResults.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvRegexResults.Location = new System.Drawing.Point(0, 0);
             this.dgvRegexResults.Name = "dgvRegexResults";
             this.dgvRegexResults.RowHeadersWidth = 51;
             this.dgvRegexResults.RowTemplate.Height = 24;
-            this.dgvRegexResults.Size = new System.Drawing.Size(792, 95);
+            this.dgvRegexResults.Size = new System.Drawing.Size(792, 101);
             this.dgvRegexResults.TabIndex = 0;
+            // 
+            // Semantika
+            // 
+            this.Semantika.Controls.Add(this.dgvSemanticResults);
+            this.Semantika.Controls.Add(this.Panel);
+            this.Semantika.Location = new System.Drawing.Point(4, 28);
+            this.Semantika.Name = "Semantika";
+            this.Semantika.Size = new System.Drawing.Size(792, 101);
+            this.Semantika.TabIndex = 3;
+            this.Semantika.Text = "Семантика";
+            this.Semantika.UseVisualStyleBackColor = true;
+            // 
+            // dgvSemanticResults
+            // 
+            this.dgvSemanticResults.BackgroundColor = System.Drawing.Color.LavenderBlush;
+            this.dgvSemanticResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvSemanticResults.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvSemanticResults.Location = new System.Drawing.Point(0, 44);
+            this.dgvSemanticResults.Name = "dgvSemanticResults";
+            this.dgvSemanticResults.RowHeadersWidth = 51;
+            this.dgvSemanticResults.RowTemplate.Height = 24;
+            this.dgvSemanticResults.Size = new System.Drawing.Size(792, 57);
+            this.dgvSemanticResults.TabIndex = 0;
+            this.dgvSemanticResults.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvSemanticResults_CellContentClick);
+            // 
+            // Panel
+            // 
+            this.Panel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.Panel.Location = new System.Drawing.Point(0, 0);
+            this.Panel.Name = "Panel";
+            this.Panel.Size = new System.Drawing.Size(792, 44);
+            this.Panel.TabIndex = 1;
+            // 
+            // tabPageLexer1
+            // 
+            this.tabPageLexer1.Controls.Add(this.dgvLab6Errors);
+            this.tabPageLexer1.Location = new System.Drawing.Point(4, 28);
+            this.tabPageLexer1.Name = "tabPageLexer1";
+            this.tabPageLexer1.Size = new System.Drawing.Size(792, 101);
+            this.tabPageLexer1.TabIndex = 4;
+            this.tabPageLexer1.Text = "ЛР6 Парсер";
+            this.tabPageLexer1.UseVisualStyleBackColor = true;
+            // 
+            // dgvLab6Errors
+            // 
+            this.dgvLab6Errors.BackgroundColor = System.Drawing.Color.LavenderBlush;
+            this.dgvLab6Errors.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvLab6Errors.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvLab6Errors.Location = new System.Drawing.Point(0, 0);
+            this.dgvLab6Errors.Name = "dgvLab6Errors";
+            this.dgvLab6Errors.RowHeadersWidth = 51;
+            this.dgvLab6Errors.RowTemplate.Height = 24;
+            this.dgvLab6Errors.Size = new System.Drawing.Size(792, 101);
+            this.dgvLab6Errors.TabIndex = 1;
+            this.dgvLab6Errors.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvLab6Errors_CellContentClick);
+            // 
+            // tabPageParser1
+            // 
+            this.tabPageParser1.Controls.Add(this.dgvLab6Tetrads);
+            this.tabPageParser1.Location = new System.Drawing.Point(4, 28);
+            this.tabPageParser1.Name = "tabPageParser1";
+            this.tabPageParser1.Size = new System.Drawing.Size(792, 101);
+            this.tabPageParser1.TabIndex = 5;
+            this.tabPageParser1.Text = "ЛР6 Тетрады";
+            this.tabPageParser1.UseVisualStyleBackColor = true;
+            // 
+            // dgvLab6Tetrads
+            // 
+            this.dgvLab6Tetrads.BackgroundColor = System.Drawing.Color.LavenderBlush;
+            this.dgvLab6Tetrads.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvLab6Tetrads.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvLab6Tetrads.Location = new System.Drawing.Point(0, 0);
+            this.dgvLab6Tetrads.Name = "dgvLab6Tetrads";
+            this.dgvLab6Tetrads.RowHeadersWidth = 51;
+            this.dgvLab6Tetrads.RowTemplate.Height = 24;
+            this.dgvLab6Tetrads.Size = new System.Drawing.Size(792, 101);
+            this.dgvLab6Tetrads.TabIndex = 2;
+            this.dgvLab6Tetrads.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvLab6Tetrads_CellContentClick);
+            // 
+            // tabPagePOLIS
+            // 
+            this.tabPagePOLIS.Controls.Add(this.rtbPOLIZ);
+            this.tabPagePOLIS.Location = new System.Drawing.Point(4, 28);
+            this.tabPagePOLIS.Name = "tabPagePOLIS";
+            this.tabPagePOLIS.Size = new System.Drawing.Size(792, 101);
+            this.tabPagePOLIS.TabIndex = 6;
+            this.tabPagePOLIS.Text = "ЛР6 ПОЛИЗ";
+            this.tabPagePOLIS.UseVisualStyleBackColor = true;
+            // 
+            // rtbPOLIZ
+            // 
+            this.rtbPOLIZ.BackColor = System.Drawing.Color.LavenderBlush;
+            this.rtbPOLIZ.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtbPOLIZ.Location = new System.Drawing.Point(0, 0);
+            this.rtbPOLIZ.Name = "rtbPOLIZ";
+            this.rtbPOLIZ.ReadOnly = true;
+            this.rtbPOLIZ.Size = new System.Drawing.Size(792, 101);
+            this.rtbPOLIZ.TabIndex = 0;
+            this.rtbPOLIZ.Text = "";
+            // 
+            // btnShowAst
+            // 
+            this.btnShowAst.Location = new System.Drawing.Point(116, 4);
+            this.btnShowAst.Name = "btnShowAst";
+            this.btnShowAst.Size = new System.Drawing.Size(223, 36);
+            this.btnShowAst.TabIndex = 0;
+            this.btnShowAst.Text = "Дерево в текстовом виде";
+            this.btnShowAst.UseVisualStyleBackColor = true;
+            this.btnShowAst.Click += new System.EventHandler(this.btnShowAst_Click);
+            // 
+            // btnBuildTree
+            // 
+            this.btnBuildTree.Location = new System.Drawing.Point(450, 4);
+            this.btnBuildTree.Name = "btnBuildTree";
+            this.btnBuildTree.Size = new System.Drawing.Size(223, 36);
+            this.btnBuildTree.TabIndex = 1;
+            this.btnBuildTree.Text = "Показать AST";
+            this.btnBuildTree.UseVisualStyleBackColor = true;
+            this.btnBuildTree.Click += new System.EventHandler(this.btnBuildTree_Click);
             // 
             // Complier
             // 
@@ -558,11 +721,18 @@
             this.splitContainer1.ResumeLayout(false);
             this.tcResult.ResumeLayout(false);
             this.tabPageLexer.ResumeLayout(false);
-            this.tabPageParser.ResumeLayout(false);
-            this.tabPageRegex.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvLexerResults)).EndInit();
+            this.tabPageParser.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvParserResults)).EndInit();
+            this.tabPageRegex.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvRegexResults)).EndInit();
+            this.Semantika.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSemanticResults)).EndInit();
+            this.tabPageLexer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvLab6Errors)).EndInit();
+            this.tabPageParser1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvLab6Tetrads)).EndInit();
+            this.tabPagePOLIS.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -613,11 +783,23 @@
         private System.Windows.Forms.RichTextBox rtbEditor;
         private System.Windows.Forms.TabControl tcResult;
         private System.Windows.Forms.TabPage tabPageLexer;
-        private System.Windows.Forms.TabPage tabPageParser;
-        private System.Windows.Forms.TabPage tabPageRegex;
         private System.Windows.Forms.DataGridView dgvLexerResults;
+        private System.Windows.Forms.TabPage tabPageParser;
         private System.Windows.Forms.DataGridView dgvParserResults;
+        private System.Windows.Forms.TabPage tabPageRegex;
+        private System.Windows.Forms.ComboBox cmbRegexType;
         private System.Windows.Forms.DataGridView dgvRegexResults;
+        private System.Windows.Forms.TabPage Semantika;
+        private System.Windows.Forms.DataGridView dgvSemanticResults;
+        private System.Windows.Forms.Panel Panel;
+        private System.Windows.Forms.Button btnShowAst;
+        private System.Windows.Forms.Button btnBuildTree;
+        private System.Windows.Forms.TabPage tabPageLexer1;
+        private System.Windows.Forms.DataGridView dgvLab6Errors;
+        private System.Windows.Forms.TabPage tabPageParser1;
+        private System.Windows.Forms.DataGridView dgvLab6Tetrads;
+        private System.Windows.Forms.TabPage tabPagePOLIS;
+        private System.Windows.Forms.RichTextBox rtbPOLIZ;
     }
 }
 
